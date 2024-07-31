@@ -1,0 +1,44 @@
+
+package ams;
+
+public class AMS {
+
+
+    public static void main(String[] args) {
+        PriorityQueue queue = new PriorityQueue();
+
+        // Creating some appointments
+        Appointment app1 = new Appointment("1", "John Doe", "Doctor's appointment", "General checkup", 30, "john@example.com", 2, "due", "personal", "link1");
+        Appointment app2 = new Appointment("2", "Jane Smith", "Meeting with client", "Project discussion", 60, "jane@example.com", 1, "due", "work", "link2");
+        Appointment app3 = new Appointment("3", "Mike Johnson", "Project deadline", "Finalize project", 120, "mike@example.com", 3, "due", "work", "link3");
+        Appointment app4 = new Appointment("4", "Emily Davis", "Lunch with friend", "Catch up with a friend", 45, "emily@example.com", 2, "due", "personal", "link4");
+
+        // Inserting appointments into the priority queue
+        queue.insert(app1);
+        queue.insert(app2);
+        queue.insert(app3);
+        queue.insert(app4);
+
+        // Displaying the priority queue
+        queue.display();  // Output: (Jane Smith, Meeting with client, Project discussion, 60, jane@example.com, 1, due, work, link2) (John Doe, Doctor's appointment, General checkup, 30, john@example.com, 2, due, personal, link1) (Emily Davis, Lunch with friend, Catch up with a friend, 45, emily@example.com, 2, due, personal, link4) (Mike Johnson, Project deadline, Finalize project, 120, mike@example.com, 3, due, work, link3)
+
+        // Deleting nodes by priority
+        queue.deleteHighestPriority(); // Delete node with highest priority
+        queue.display(); // Output: (John Doe, Doctor's appointment, General checkup, 30, john@example.com, 2, due, personal, link1) (Emily Davis, Lunch with friend, Catch up with a friend, 45, emily@example.com, 2, due, personal, link4) (Mike Johnson, Project deadline, Finalize project, 120, mike@example.com, 3, due, work, link3)
+
+        //queue.deleteLowestPriority(); // Delete node with lowest priority
+        //queue.display(); // Output: (John Doe, Doctor's appointment, General checkup, 30, john@example.com, 2, due, personal, link1) (Emily Davis, Lunch with friend, Catch up with a friend, 45, emily@example.com, 2, due, personal, link4)
+
+        // Deleting node by value
+        queue.deleteById("4");
+        queue.display(); // Output: (John Doe, Doctor's appointment, General checkup, 30, john@example.com, 2, due, personal, link1)
+
+        // Searching for a value in the list
+        System.out.println(= queue.searchById(2)); // Output: true
+        System.out.println(= queue.searchById(3)); // Output: false
+
+        // Displaying the list backward
+        //queue.displayBackward();  // Output: (John Doe, Doctor's appointment, General checkup, 30, john@example.com, 2, due, personal, link1)
+    }
+    
+}
