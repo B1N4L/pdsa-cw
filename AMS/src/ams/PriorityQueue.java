@@ -4,6 +4,7 @@ public class PriorityQueue {
 
         private static class Node {
             Appointment appointment;
+            int priority;
             Node prev;
             Node next;
 
@@ -12,6 +13,7 @@ public class PriorityQueue {
                 this.appointment = appointment;
                 this.prev = null;
                 this.next = null;
+                this.priority = appointment.priority;
             }
         }
     // Head and tail pointers of the doubly linked list
@@ -32,7 +34,7 @@ public class PriorityQueue {
             tail = newNode;
         } else {
             Node current = head;
-            while (current != null && current.appointment.priority <= app.priority) {
+            while (current != null && current.priority <= app.priority) {
                 current = current.next;
             }
             if (current == head) {
@@ -57,11 +59,7 @@ public class PriorityQueue {
         Node current = head;
         while (current != null) {
             if (current.appointment.id.equals(app.id)) {
-                current.appointment.name= app.name;
-                current.appointment.subject= app.subject;
-                current.appointment.id= app.id;
-                current.appointment.id= app.id;
-                current.appointment.id= app.id;
+                current.appointment = app;
             }
             current = current.next;
         }
@@ -81,20 +79,7 @@ public class PriorityQueue {
             head.prev = null;
         }
     }
-/*
-    // Method to delete the node with the lowest priority (tail of the list)
-    public void deleteLowestPriority() {
-        if (tail == null) {
-            return;
-        }
-        if (head == tail) {
-            head = null;
-            tail = null;
-        } else {
-            tail = tail.prev;
-            tail.next = null;
-        }
-    }*/
+
 
     // Delete an appointment node by id
     public void deleteById(String id) {
@@ -117,7 +102,7 @@ public class PriorityQueue {
         }
     }
 
-    // [INCOMPLETE] Search for an appointment by id
+    // Search for an appointment by id
     public Appointment searchById(String id) {
         Node current = head;
         while (current != null) {
@@ -129,8 +114,8 @@ public class PriorityQueue {
         return null;
     }
 
-    // Display all appointments with name, sbj & priority
-    public void display() {
+    // Display all appointments with name, sbj & priority(use some sorting methods to this)
+    public void displayAll() {
         Node current = head;
         while (current != null) {
             System.out.println( current.appointment.name + " " + current.appointment.subject + " " + current.appointment.priority);
@@ -138,23 +123,13 @@ public class PriorityQueue {
         }
         System.out.println();
     }
-/*
-    // Method to display the priority queue from tail to head
-    public void displayBackward() {
-        Node current = tail;
-        while (current != null) {
-            System.out.print(current.appointment + " ");
-            current = current.prev;
-        }
-        System.out.println();
-    }*/
 
-    // Method to check if the list is empty
+    // Check if the list is empty
     public boolean isEmpty() {
         return head == null;
     }
 
-    // Method to empty the appointment list
+    // Empty the appointment list
     public void clearAll() {
         head = null;
         tail = null;
