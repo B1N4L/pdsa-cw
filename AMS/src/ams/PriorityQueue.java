@@ -29,7 +29,7 @@ public class PriorityQueue {
     // Add a new appointment based on priority
     public void insert(Appointment app) {
         Node newNode = new Node(app);
-        if (head == null) {
+        if (isEmpty()) {
             head = newNode;
             tail = newNode;
         } else {
@@ -54,7 +54,7 @@ public class PriorityQueue {
         }
     }
 
-    //[INCOMPLETE] Update appointment by id
+    //Update appointment by id
     public void updateById(Appointment app) {
         Node current = head;
         while (current != null) {
@@ -65,10 +65,10 @@ public class PriorityQueue {
         }
     }
 
-
+/*
     // Delete appointment node with the highest priority (head of the list)
     public void deleteHighestPriority() {
-        if (head == null) {
+        if (isEmpty()) {
             return;
         }
         if (head.next == null) {
@@ -78,7 +78,7 @@ public class PriorityQueue {
             head = head.next;
             head.prev = null;
         }
-    }
+    }*/
 
 
     // Delete an appointment node by id
@@ -114,14 +114,82 @@ public class PriorityQueue {
         return null;
     }
 
-    // Display all appointments with name, sbj & priority(use some sorting methods to this)
+    // Display all appointments with id, name, sbj, creation date & priority(use some sorting methods to this)
     public void displayAll() {
         Node current = head;
         while (current != null) {
-            System.out.println( current.appointment.name + " " + current.appointment.subject + " " + current.appointment.priority);
+            System.out.println( current.appointment.id + " " +current.appointment.name + " " + current.appointment.subject + " " + current.appointment.dateCreated);
             current = current.next;
         }
         System.out.println();
+    }
+    //sort by creation date of appointments[watch out for conflicts]
+    public void sortByDateCreated() {
+        if (isEmpty()) {
+            return;
+        }
+
+        boolean swapped;
+        do {
+            swapped = false;
+            Node current = head;
+            while (current.next != null) {
+                if (current.appointment.dateCreated.compareTo(current.next.appointment.dateCreated) > 0) {
+                    // Swap appointments
+                    Appointment temp_appointment = current.appointment;
+                    current.appointment = current.next.appointment;
+                    current.next.appointment = temp_appointment;
+                    swapped = true;
+                }
+                current = current.next;
+            }
+        } while (swapped);
+    }
+
+    //sort appointments by priority
+    public void sortByPriority() {
+        if (isEmpty()) {
+            return;
+        }
+
+        boolean swapped;
+        do {
+            swapped = false;
+            Node current = head;
+            while (current.next != null) {
+                if (current.appointment.priority > current.next.appointment.priority) {
+                    // Swap appointments
+                    Appointment temp = current.appointment;
+                    current.appointment = current.next.appointment;
+                    current.next.appointment = temp;
+                    swapped = true;
+                }
+                current = current.next;
+            }
+        } while (swapped);
+    }
+
+    //sort appointments by name
+    public void sortByName() {
+        if (head == null) {
+            return;
+        }
+
+        boolean swapped;
+        do {
+            swapped = false;
+            Node current = head;
+            while (current.next != null) {
+                if (current.appointment.name.compareTo(current.next.appointment.name) > 0) {
+                    // Swap appointments
+                    Appointment temp = current.appointment;
+                    current.appointment = current.next.appointment;
+                    current.next.appointment = temp;
+                    swapped = true;
+                }
+                current = current.next;
+            }
+        } while (swapped);
     }
 
     // Check if the list is empty
