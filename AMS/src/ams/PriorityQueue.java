@@ -1,5 +1,8 @@
 package ams;
 
+import java.io.*;
+
+
 public class PriorityQueue {
 
         private static class Node {
@@ -118,7 +121,7 @@ public class PriorityQueue {
     public void displayAll() {
         Node current = head;
         while (current != null) {
-            System.out.println( current.appointment.id + " " +current.appointment.name + " " + current.appointment.subject + " " + current.appointment.dateCreated);
+            System.out.println( current.appointment.id + "\t" +current.appointment.name + "\t" + current.appointment.subject + "\t" + current.appointment.dateCreated.substring(0, 10));
             current = current.next;
         }
         System.out.println();
@@ -195,6 +198,65 @@ public class PriorityQueue {
     // Check if the list is empty
     public boolean isEmpty() {
         return head == null;
+    }
+
+//backup/store appointment list
+public void storeAppointments(String filename) {
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+        Node current = head;
+        while (current != null) {
+            Appointment appointment = current.appointment;
+            writer.write("ID: " + appointment.id);
+            writer.newLine();
+            writer.write("Name: " + appointment.name);
+            writer.newLine();
+            writer.write("Subject: " + appointment.subject);
+            writer.newLine();
+            writer.write("Description: " + appointment.description);
+            writer.newLine();
+            writer.write("Priority: " + appointment.priority);
+            writer.newLine();
+            writer.write("Status: " + appointment.status);
+            writer.newLine();
+            writer.write("Date Created: " + appointment.dateCreated);
+            writer.newLine();
+            writer.newLine(); // Add a blank line between appointments
+
+            current = current.next;
+        }
+        System.out.println("Appointments successfully stored in file: " + filename);
+    } catch (IOException e) {
+        System.out.println("An error occurred while writing to the file: " + e.getMessage());
+    }
+}
+
+    public void restoreAppointments(String filename) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String id = line.split(": ")[1].trim();
+                String name = reader.readLine().split(": ")[1].trim();
+                String subject = reader.readLine().split(": ")[1].trim();
+                String description = reader.readLine().split(": ")[1].trim();
+
+                int priority = Integer.parseInt(reader.readLine().split(": ")[1].trim());
+                String status = reader.readLine().split(": ")[1].trim();
+                String dateCreated = reader.readLine().split(": ")[1].trim();
+
+                // Skip the blank line between appointments
+                reader.readLine();
+
+                // Create a new Appointment object with the parsed data
+                Appointment appointment = new Appointment(id, name, subject, description, priority, status);
+                appointment.dateCreated = dateCreated; // Restore the original dateCreated value
+
+                // Insert the restored appointment into the priority queue
+                this.insert(appointment);
+            }
+            System.out.println("Appointments successfully restored from file: " + filename);
+        } catch (IOException e) {
+            System.out.println("An error occurred while reading the file: " + e.getMessage());
+        }
     }
 
     // Empty the appointment list

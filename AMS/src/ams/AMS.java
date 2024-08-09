@@ -11,6 +11,7 @@ public class AMS {
 
 
         PriorityQueue queue = new PriorityQueue();
+        queue.restoreAppointments("ams\\appointment-list.txt");
         Scanner scn= new Scanner(System.in);
         String choice;
 
@@ -20,7 +21,7 @@ public class AMS {
         while(true){
             //show navigation buttons
             System.out.println("|------------------Appointment Scheduling Tool-----------------|");
-            System.out.println("Enter 'h' to show navigation controls");
+            System.out.println("Enter 'h' for navigation controls");
             choice = scn.nextLine();
 
             if(choice.equals("h")) {
@@ -29,14 +30,13 @@ public class AMS {
 
             //view all appointments
             else if (choice.equals("1")) {
-                //show sort selection buttons[hey teddy sort this by priority by afterwards***]
+                //show sort selection buttons[hey teddy sort this by priority by afterward***]
+                System.out.println("Select sorting option:");
                 while(true) {
-                    System.out.println("Enter 'h' to select sorting fields");
+                    selectSortFields();
                     choice = scn.nextLine();
-                    if(choice.equals("h")) {
-                        selectSortFields();
-                    }
-                    else if (choice.equals("1")) {
+                    System.out.println();
+                    if (choice.equals("1")) {
                         queue.sortByDateCreated();
                         queue.displayAll();
                     } else if (choice.equals("2")) {
@@ -57,9 +57,9 @@ public class AMS {
             //insert appointment
             else if (choice.equals("2")){
 
-                System.out.print("Enter meeting ID/entity: ");
+                System.out.print("Enter meeting ID: ");
                 String id =scn.nextLine();
-                System.out.print("Enter name of participant: ");
+                System.out.print("Enter participant name(s): ");
                 String name =scn.nextLine();
                 System.out.print("Enter Appointment Subject: ");
                 String subject =scn.nextLine();
@@ -147,20 +147,30 @@ public class AMS {
             }
             //Delete appointment by id
             else if(choice.equals("4")){
-                System.out.println("[Delete Appointments_____]");
+                System.out.println("[__________Delete Appointments_______]");
                 System.out.println("Enter id to select appointment:");
                 Appointment temp_appointment= queue.searchById(scn.nextLine());
                 if(temp_appointment == null){
                     System.out.println("\tNo matching id found, please try again...");
                 }
                 else{
-                    queue.deleteById(temp_appointment.id);
-                    System.out.println("Deletion success!");
+                    System.out.println("Are you sure you want to delete this appointment?\nYes['y'] / No['n']");
+                    choice = scn.nextLine();
+                    if(choice.equals("y")){
+                        queue.deleteById(temp_appointment.id);
+                        System.out.println("Deletion success!");
+                    }
+                    else if(choice.equals("n")){
+                        System.out.println("\tDeletion cancelled...");
+                    }
+                    else {
+                        System.out.println("\tinvalid input, please try again...");
+                    }
                 }
             }
             //view appointment by id
             else if(choice.equals("5")){
-                System.out.println("[View Appointment Details_____]");
+                System.out.println("[______View Appointment Details_____]");
                 System.out.println("Enter appointment id to select appointment:");
                 Appointment temp_appointment= queue.searchById(scn.nextLine());
                 if(temp_appointment == null){
@@ -176,17 +186,41 @@ public class AMS {
                     System.out.println("Appointment date created: "+ temp_appointment.dateCreated);
                 }
             }
+            else if(choice.equals("8")){
+                queue.clearAll();
+            }
+
+            if(choice.equals("7")){
+                System.out.println("[______Backup and Restore Options_____]");
+                selectBackupRestore();
+                choice = scn.nextLine();
+                String filename;
+                switch(choice){
+                    case "1":
+                        System.out.println("Enter the file name of the backup file:");
+                        filename = scn.nextLine();
+                        queue.storeAppointments(filename+".txt");
+                        break;
+                    case "2":
+                        System.out.println("Enter the file name of the backup file:");
+                        filename = scn.nextLine();
+                        queue.restoreAppointments(filename+".txt");
+                        break;
+                    case "0":
+
+                        break;
+                    default:
+
+                        break;
+                }
+            }
 
 
             //Exit from the tool
-            else if(choice.equals("0")){
+            else if(choice.equals("e")){
+                queue.storeAppointments("ams\\appointment-list.txt");
                 break;
             }
-            else {
-                System.out.println("\tinvalid input. please try again...\n");
-            }
-
-
         }
 
 
@@ -197,14 +231,15 @@ public class AMS {
 
     public static void showMainMenu(){
 
-        System.out.println("Enter '1' to view all Appointments");//
+        System.out.println("Enter '1' to view Appointment List");//
         System.out.println("Enter '2' to place an Appointments");//
         System.out.println("Enter '3' to update an Appointment");//
         System.out.println("Enter '4' to delete an Appointment");//
         System.out.println("Enter '5' to view Appointment by Id");//
-        //System.out.println("Enter '3' to delete latest Appointment");
+        System.out.println("Enter '8' to delete all Appointments"); //
+        System.out.println("Enter '7' for backup & restore options");
 
-        System.out.println("Enter '0' to Exit");
+        System.out.println("Enter 'e' to Exit");
     }
 
     public static void showUpdateFields(){
@@ -217,10 +252,25 @@ public class AMS {
         System.out.println("Enter '0' to Exit");
     }
     public static void selectSortFields(){
-        System.out.println("Enter '1' to sort by date created");
-        System.out.println("Enter '2' to sort by participant name");
-        System.out.println("Enter '3' to sort by appointment priority");
+        System.out.println("Sort by: Date:['1']   Name:['2']   Priority:['3']   Exit['0']");
+    }
+
+    public static void selectBackupRestore(){
+        System.out.println("Enter '1' to Backup appointment details");
+        System.out.println("Enter '2' to Restore appointment details");
         System.out.println("Enter '0' to exit");
+    }
+
+    //don't use this method(it's not intended to work)
+    public static void loading(){
+        System.out.print("(|)");
+        for(double i=0; i<1000000; i=+0.0001);
+        System.out.print("(/)");
+        for(double i=0; i<1000000; i=+0.0001);
+        System.out.print("(-)");
+        for(double i=0; i<1000000; i=+0.0001);
+        System.out.print("(|)");
+        for(double i=0; i<1000000; i=+0.0001);
     }
 
 }

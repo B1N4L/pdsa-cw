@@ -22,6 +22,15 @@ public class Appointment {
         this.status = status;
         this.dateCreated = String.valueOf(systemClock.instant());
     }
+    public Appointment(String id, String name, String subject, String description, int priority, String status, String dateCreated) {
+        this.id = id;
+        this.name = name;
+        this.subject = subject;
+        this.description = description;
+        this.priority = priority;
+        this.status = status;
+        this.dateCreated = dateCreated;
+    }
     
     
 }
