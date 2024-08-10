@@ -89,12 +89,12 @@ public class AMS {
                 else{
                     while(true) {
                         //show update navigation buttons
-                        System.out.println("Press 'u' view update fields for Id-" + temp_appointment.id + ":'");
-                        System.out.println("Press 0 to exit");
+                        System.out.println("Press '1' view update fields for Id-" + temp_appointment.id + ":'");
+                        System.out.println("Press '0' to exit");
                         choice = scn.nextLine();
 
                         //show update navigation buttons
-                        if (choice.equals("u")) {
+                        if (choice.equals("1")) {
                             showUpdateFields();
                         }
                         //update name
@@ -189,11 +189,22 @@ public class AMS {
                     System.out.println("Appointment date created: "+ temp_appointment.dateCreated);
                 }
             }
-            else if(choice.equals("8")){
-                queue.clearAll();
+            else if(choice.equals("6")){
+                System.out.println("Are you sure you want to delete all appointments?\nYes['y'] / No['n']");
+                    choice = scn.nextLine();
+                    if(choice.equals("y")){
+                        queue.clearAll();
+                        System.out.println("Deletion success!");
+                    }
+                    else if(choice.equals("n")){
+                        System.out.println("\tDeletion cancelled...");
+                    }
+                    else {
+                        System.out.println("\tinvalid input, please try again...");
+                    }
             }
 
-            if(choice.equals("7")){
+            else if(choice.equals("7")){
                 System.out.println("[______Backup and Restore Options_____]");
                 selectBackupRestore();
                 choice = scn.nextLine();
@@ -202,12 +213,12 @@ public class AMS {
                     case "1":
                         System.out.println("Enter the file name of the backup file:");
                         filename = scn.nextLine();
-                        queue.storeAppointments(filename+".txt");
+                        queue.storeAppointments("Backups/"+filename+".txt");
                         break;
                     case "2":
                         System.out.println("Enter the file name of the backup file:");
                         filename = scn.nextLine();
-                        queue.restoreAppointments(filename+".txt");
+                        queue.restoreAppointments("Backups/"+filename+".txt");
                         break;
                     case "0":
                         break;
@@ -217,7 +228,7 @@ public class AMS {
             }
             
             //Exit from the tool
-            else if(choice.equals("e")){
+            else if(choice.equals("0")){
                 queue.storeAppointments("src\\ams\\appointment-list.txt");
                 break;
             }
@@ -231,9 +242,9 @@ public class AMS {
         System.out.println("Enter '3' to update an Appointment");//
         System.out.println("Enter '4' to delete an Appointment");//
         System.out.println("Enter '5' to view Appointment by Id");//
-        System.out.println("Enter '8' to delete all Appointments"); //
+        System.out.println("Enter '6' to delete all Appointments"); //
         System.out.println("Enter '7' for backup & restore options");
-        System.out.println("Enter 'e' to Exit");
+        System.out.println("Enter '0' to Exit");
     }
 
     public static void showUpdateFields(){
