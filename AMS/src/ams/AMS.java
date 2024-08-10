@@ -11,7 +11,7 @@ public class AMS {
 
 
         PriorityQueue queue = new PriorityQueue();
-        queue.restoreAppointments("ams\\appointment-list.txt");
+        queue.restoreAppointments("src\\ams\\appointment-list.txt");
         Scanner scn= new Scanner(System.in);
         String choice;
 
@@ -218,7 +218,7 @@ public class AMS {
 
             //Exit from the tool
             else if(choice.equals("e")){
-                queue.storeAppointments("ams\\appointment-list.txt");
+                queue.storeAppointments("src\\ams\\appointment-list.txt");
                 break;
             }
         }
