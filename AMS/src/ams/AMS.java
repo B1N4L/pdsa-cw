@@ -5,24 +5,29 @@ import java.util.Scanner;
 
 public class AMS {
 
-
     public static void main(String[] args) {
-
-
 
         LinkedList queue = new LinkedList();
         queue.restoreAppointments("src\\ams\\appointment-list.txt");
         Scanner scn= new Scanner(System.in);
         String choice;
 
-
+        System.out.println( "                                     _           _                                _   \n" +
+                            "     /\\                             (_)         | |                              | |  \n" +
+                            "    /  \\     _ __    _ __     ___    _   _ __   | |_   _ __ ___     ___   _ __   | |_ \n" +
+                            "   / /\\ \\   | '_ \\  | '_ \\   / _ \\  | | | '_ \\  | __| | '_ ` _ \\   / _ \\ | '_ \\  | __|\n" +
+                            "  / ____ \\  | |_) | | |_) | | (_) | | | | | | | | |_  | | | | | | |  __/ | | | | | |_ \n" +
+                            " /_/    \\_\\ | .__/  | .__/   \\___/  |_| |_| |_|  \\__| |_| |_| |_|  \\___| |_| |_|  \\__|\n" +
+                            "            | |     | |                                                               \n" +
+                            "            |_|     |_|                                                               ");
+        
         while(true){
             //show navigation buttons
-            System.out.println("|------------------Appointment Scheduling Tool-----------------|");
-            System.out.println("Enter 'h' for navigation controls");
+            System.out.println("|-----------------------------------Scheduling Tool-----------------------------------|");
+            System.out.println("Type 'Enter' for navigation controls");
             choice = scn.nextLine();
 
-            if(choice.equals("h")) {
+            if(choice.equals("Enter")) {
                 showMainMenu();
             }
 
@@ -67,8 +72,8 @@ public class AMS {
                 int priority =Integer.parseInt(scn.nextLine());
                 System.out.print("Enter meeting status[due(1) /completed(2) /missed(3)]: ");
                 String status =scn.nextLine();
+                
                 Appointment app1= new Appointment(id, name, subject, description, priority, status);
-
                 queue.insert(app1);
                 System.out.println("\tAppointment scheduled!\n");
             }
@@ -205,27 +210,19 @@ public class AMS {
                         queue.restoreAppointments(filename+".txt");
                         break;
                     case "0":
-
                         break;
                     default:
-
                         break;
                 }
             }
-
-
+            
             //Exit from the tool
             else if(choice.equals("e")){
                 queue.storeAppointments("src\\ams\\appointment-list.txt");
                 break;
             }
         }
-
-
-
-
     }
-
 
     public static void showMainMenu(){
 
@@ -236,7 +233,6 @@ public class AMS {
         System.out.println("Enter '5' to view Appointment by Id");//
         System.out.println("Enter '8' to delete all Appointments"); //
         System.out.println("Enter '7' for backup & restore options");
-
         System.out.println("Enter 'e' to Exit");
     }
 
@@ -270,5 +266,4 @@ public class AMS {
         System.out.print("(|)");
         for(double i=0; i<1000000; i=+0.0001);
     }
-
 }
