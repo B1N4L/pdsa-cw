@@ -10,12 +10,10 @@ public class AMS {
 
 
 
-        PriorityQueue queue = new PriorityQueue();
+        LinkedList queue = new LinkedList();
         queue.restoreAppointments("src\\ams\\appointment-list.txt");
         Scanner scn= new Scanner(System.in);
         String choice;
-
-
 
 
         while(true){

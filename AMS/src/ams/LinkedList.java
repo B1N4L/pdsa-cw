@@ -3,7 +3,7 @@ package ams;
 import java.io.*;
 
 
-public class PriorityQueue {
+public class LinkedList {
 
         private static class Node {
             Appointment appointment;
@@ -23,7 +23,7 @@ public class PriorityQueue {
     private Node head;
     private Node tail;
     // Constructor for creating an empty priority queue
-    public PriorityQueue() {
+    public LinkedList() {
         this.head = null;
         this.tail = null;
     }
