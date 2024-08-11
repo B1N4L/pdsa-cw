@@ -275,4 +275,16 @@ public void storeAppointments(String filename) {
         }
         return size;
     }
+    
+        public int getDueCount() {
+        int count = 0;
+        Node current = head;
+        while (current != null) {
+            if(current.appointment.status.equals("1")){
+                count++;
+            }
+            current = current.next;
+        }
+        return count;
+    }
 }

@@ -23,7 +23,8 @@ public class AMS {
         
         while(true){
             //show navigation buttons
-            System.out.println("|-----------------------------------Scheduling Tool-----------------------------------|");
+            System.out.println("\n|-----------------------------------Scheduling Tool-----------------------------------|\n");
+            System.out.println("[Current Due Appointments - '"+queue.getDueCount()+"']");
             System.out.println("Type 'Enter' for navigation controls");
             choice = scn.nextLine();
 
@@ -228,7 +229,7 @@ public class AMS {
             }
             
             //Exit from the tool
-            else if(choice.equals("0")){
+            else if(choice.equals("E")){
                 queue.storeAppointments("src\\ams\\appointment-list.txt");
                 break;
             }
@@ -244,7 +245,7 @@ public class AMS {
         System.out.println("Enter '5' to view Appointment by Id");//
         System.out.println("Enter '6' to delete all Appointments"); //
         System.out.println("Enter '7' for backup & restore options");
-        System.out.println("Enter '0' to Exit");
+        System.out.println("Enter 'E' to Exit");
     }
 
     public static void showUpdateFields(){
