@@ -2,32 +2,32 @@ package ams;
 
 import java.io.*;
 
-
 public class LinkedList {
 
-        private static class Node {
-            Appointment appointment;
-            int priority;
-            Node prev;
-            Node next;
+    private static class Node {
 
-            // Constructor for creating a new node
-            Node(Appointment appointment) {
-                this.appointment = appointment;
-                this.prev = null;
-                this.next = null;
-                this.priority = appointment.priority;
-            }
+        Appointment appointment;
+        int priority;
+        Node prev;
+        Node next;
+
+        // Constructor for creating a new node
+        Node(Appointment appointment) {
+            this.appointment = appointment;
+            this.prev = null;
+            this.next = null;
+            this.priority = appointment.priority;
         }
+    }
     // Head and tail pointers of the doubly linked list
     private Node head;
     private Node tail;
+
     // Constructor for creating an empty priority queue
     public LinkedList() {
         this.head = null;
         this.tail = null;
     }
-
 
     // Add a new appointment based on priority
     public void insert(Appointment app) {
@@ -68,7 +68,7 @@ public class LinkedList {
         }
     }
 
-/*
+    /*
     // Delete appointment node with the highest priority (head of the list)
     public void deleteHighestPriority() {
         if (isEmpty()) {
@@ -82,8 +82,6 @@ public class LinkedList {
             head.prev = null;
         }
     }*/
-
-
     // Delete an appointment node by id
     public void deleteById(String id) {
         Node current = head;
@@ -120,12 +118,24 @@ public class LinkedList {
     // Display all appointments with id, name, sbj, creation date & priority(use some sorting methods to this)
     public void displayAll() {
         Node current = head;
+        String temp_priority = "low";
         while (current != null) {
-            System.out.println( current.appointment.id + "\t" +current.appointment.name + "\t" + current.appointment.subject + "\t" + current.appointment.dateCreated.substring(0, 10));
+            if (current.priority == 1) {
+                temp_priority = "urgent";
+            }
+            else if (current.priority == 2) {
+                temp_priority = "medium";
+            }
+            else if (current.priority == 3) {
+                temp_priority = "low";
+            }
+
+            System.out.println(current.appointment.id + "\t" + current.appointment.name + "\t" + current.appointment.subject +"["+temp_priority+"]"+ "\t" + current.appointment.dateCreated.substring(0, 10));
             current = current.next;
         }
         System.out.println();
     }
+
     //sort by creation date of appointments[watch out for conflicts]
     public void sortByDateCreated() {
         if (isEmpty()) {
@@ -201,34 +211,34 @@ public class LinkedList {
     }
 
 //backup/store appointment list
-public void storeAppointments(String filename) {
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-        Node current = head;
-        while (current != null) {
-            Appointment appointment = current.appointment;
-            writer.write("ID: " + appointment.id);
-            writer.newLine();
-            writer.write("Name: " + appointment.name);
-            writer.newLine();
-            writer.write("Subject: " + appointment.subject);
-            writer.newLine();
-            writer.write("Description: " + appointment.description);
-            writer.newLine();
-            writer.write("Priority: " + appointment.priority);
-            writer.newLine();
-            writer.write("Status: " + appointment.status);
-            writer.newLine();
-            writer.write("Date Created: " + appointment.dateCreated);
-            writer.newLine();
-            writer.newLine(); // Add a blank line between appointments
+    public void storeAppointments(String filename) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            Node current = head;
+            while (current != null) {
+                Appointment appointment = current.appointment;
+                writer.write("ID: " + appointment.id);
+                writer.newLine();
+                writer.write("Name: " + appointment.name);
+                writer.newLine();
+                writer.write("Subject: " + appointment.subject);
+                writer.newLine();
+                writer.write("Description: " + appointment.description);
+                writer.newLine();
+                writer.write("Priority: " + appointment.priority);
+                writer.newLine();
+                writer.write("Status: " + appointment.status);
+                writer.newLine();
+                writer.write("Date Created: " + appointment.dateCreated);
+                writer.newLine();
+                writer.newLine(); // Add a blank line between appointments
 
-            current = current.next;
+                current = current.next;
+            }
+            System.out.println("Appointments successfully stored in file: " + filename);
+        } catch (IOException e) {
+            System.out.println("An error occurred while writing to the file: " + e.getMessage());
         }
-        System.out.println("Appointments successfully stored in file: " + filename);
-    } catch (IOException e) {
-        System.out.println("An error occurred while writing to the file: " + e.getMessage());
     }
-}
 
     public void restoreAppointments(String filename) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
@@ -275,12 +285,12 @@ public void storeAppointments(String filename) {
         }
         return size;
     }
-    
-        public int getDueCount() {
+
+    public int getDueCount() {
         int count = 0;
         Node current = head;
         while (current != null) {
-            if(current.appointment.status.equals("1")){
+            if (current.appointment.status.equals("1")) {
                 count++;
             }
             current = current.next;

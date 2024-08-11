@@ -24,7 +24,7 @@ public class AMS {
         while(true){
             //show navigation buttons
             System.out.println("\n|-----------------------------------Scheduling Tool-----------------------------------|\n");
-            System.out.println("[Current Due Appointments - '"+queue.getDueCount()+"']");
+            System.out.println("\t****[Current Due Appointments: '"+queue.getDueCount()+"']****\n");
             System.out.println("Type 'Enter' for navigation controls");
             choice = scn.nextLine();
 
@@ -90,12 +90,12 @@ public class AMS {
                 else{
                     while(true) {
                         //show update navigation buttons
-                        System.out.println("Press '1' view update fields for Id-" + temp_appointment.id + ":'");
+                        System.out.println("Press 'u' view update fields for Id-" + temp_appointment.id + ":'");
                         System.out.println("Press '0' to exit");
                         choice = scn.nextLine();
 
                         //show update navigation buttons
-                        if (choice.equals("1")) {
+                        if (choice.equals("u")) {
                             showUpdateFields();
                         }
                         //update name
@@ -212,12 +212,12 @@ public class AMS {
                 String filename;
                 switch(choice){
                     case "1":
-                        System.out.println("Enter the file name of the backup file:");
+                        System.out.println("Enter the file name of the backup file for Backup:");
                         filename = scn.nextLine();
                         queue.storeAppointments("Backups/"+filename+".txt");
                         break;
                     case "2":
-                        System.out.println("Enter the file name of the backup file:");
+                        System.out.println("Enter the file name of the backup file for Restore:");
                         filename = scn.nextLine();
                         queue.restoreAppointments("Backups/"+filename+".txt");
                         break;
