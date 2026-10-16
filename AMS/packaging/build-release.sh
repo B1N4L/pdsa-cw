@@ -4,7 +4,7 @@
 # (run from anywhere; needs JDK 17 or newer. SITE_URL is the address the website will be served from;
 #  it is written into the online installers. It defaults to the local preview address.)
 #
-# Output (in AMS/release, and copied to website/downloads):
+# Output (in AMS/release; attach these to a GitHub release, which website/_redirects sends downloads to):
 #   AMOffline-Windows.zip      Windows app with Java included + "Install AMOffline.cmd" (only when built on Windows)
 #   AMOffline-Linux-x64.tar.gz Linux app with Java included + install.sh (needs the Linux JDK's jmods, see below)
 #   AMOffline-Linux.tar.gz     Linux app without Java (for other processors) + install.sh
@@ -130,9 +130,10 @@ else
     echo "== Skipping AMOffline-Windows.zip (build on Windows to make it)"
 fi
 
-echo "== Website downloads and one-command installers ($SITE_URL)"
+echo "== Website files and one-command installers ($SITE_URL)"
+# The download files themselves are not copied: they go on a GitHub release, and
+# website/_redirects sends /downloads/<file> there, so the website folder stays small.
 mkdir -p "$SITE_DIR/downloads" "$SITE_DIR/assets"
-cp "$RELEASE"/* "$SITE_DIR/downloads/"
 fill "$AMS_DIR/packaging/windows/install.ps1" > "$SITE_DIR/install.ps1"
 crlf "$SITE_DIR/install.ps1"
 fill "$AMS_DIR/packaging/linux/install-online.sh" | sed 's/\r$//' > "$SITE_DIR/install.sh"
@@ -156,7 +157,7 @@ done
     echo "  built: \"$(date +%Y-%m-%d)\","
     echo "  site: \"$SITE_URL\","
     echo "  sizes: {"
-    for f in "$SITE_DIR"/downloads/*.jar "$SITE_DIR"/downloads/*.gz "$SITE_DIR"/downloads/*.zip; do
+    for f in "$RELEASE"/*.jar "$RELEASE"/*.gz "$RELEASE"/*.zip; do
         [ -f "$f" ] || continue
         echo "    \"$(basename "$f")\": $(wc -c < "$f" | tr -d ' '),"
     done
@@ -167,3 +168,6 @@ done
 echo
 echo "Done:"
 ls -l "$RELEASE"
+echo
+echo "Next: attach the files above to a GitHub release (tag v$VERSION, set as the latest release),"
+echo "then upload the website folder to Netlify."

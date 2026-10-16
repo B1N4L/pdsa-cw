@@ -1,0 +1,6 @@
+# Netlify: the download files live on the latest GitHub release, not on Netlify.
+# The website's buttons and the one-command installers use /downloads/<file>, which forwards there.
+/downloads/AMOffline-Windows.zip       https://github.com/B1N4L/pdsa-cw/releases/latest/download/AMOffline-Windows.zip       302!
+/downloads/AMOffline-Linux-x64.tar.gz  https://github.com/B1N4L/pdsa-cw/releases/latest/download/AMOffline-Linux-x64.tar.gz  302!
+/downloads/AMOffline-Linux.tar.gz      https://github.com/B1N4L/pdsa-cw/releases/latest/download/AMOffline-Linux.tar.gz      302!
+/downloads/AMOffline.jar               https://github.com/B1N4L/pdsa-cw/releases/latest/download/AMOffline.jar               302!
