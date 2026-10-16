@@ -62,7 +62,6 @@ website/                  index.html + assets/ (committed)
    ```
    git clone https://github.com/B1N4L/pdsa-cw.git
    cd pdsa-cw
-   git checkout desktop-app-and-installers
    ```
 2. **Install JDK 21** (Eclipse Temurin):
    - Windows: `winget install EclipseAdoptium.Temurin.21.JDK`
@@ -132,5 +131,3 @@ website/                  index.html + assets/ (committed)
    - In dark mode, the Windows title bar stays light (Java can't change it).
    - Pinning the *running* window to the taskbar pins Java. Pin from the Start menu shortcut instead.
    - macOS only has `AMS.jar`, which needs Java.
-5. The work is on branch `desktop-app-and-installers`. `main` is unchanged. Open a pull request
-   to merge it once the team agrees.
