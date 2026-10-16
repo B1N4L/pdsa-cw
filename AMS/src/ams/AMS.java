@@ -1,6 +1,11 @@
 
 package ams;
 
+import java.io.File;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class AMS {
@@ -8,7 +13,10 @@ public class AMS {
     public static void main(String[] args) {
 
         LinkedList queue = new LinkedList();
-        queue.restoreAppointments("src\\ams\\appointment-list.txt");
+        String listFile = DataPaths.appointmentList();
+        if (new File(listFile).exists()) {
+            queue.restoreAppointments(listFile);
+        }
         Scanner scn= new Scanner(System.in);
         String choice;
 
@@ -25,15 +33,12 @@ public class AMS {
             //show navigation buttons
             System.out.println("\n|-----------------------------------Scheduling Tool-----------------------------------|\n");
             System.out.println("\t****[Current Due Appointments: '"+queue.getDueCount()+"']****\n");
-            System.out.println("Type 'Enter' for navigation controls");
-            choice = scn.nextLine();
-
-            if(choice.equals("Enter")) {
-                showMainMenu();
-            }
+            showMainMenu();
+            System.out.print("Choose an option: ");
+            choice = scn.nextLine().trim();
 
             //view all appointments
-            else if (choice.equals("1")) {
+            if (choice.equals("1")) {
                 //show sort selection buttons[hey teddy sort this by priority by afterward***]
                 System.out.println("Select sorting option:");
                 while(true) {
@@ -48,6 +53,9 @@ public class AMS {
                         queue.displayAll();
                     } else if (choice.equals("3")) {
                         queue.sortByPriority();
+                        queue.displayAll();
+                    } else if (choice.equals("4")) {
+                        queue.sortByScheduled();
                         queue.displayAll();
                     } else if (choice.equals("0")) {
                         queue.sortByPriority();
@@ -69,14 +77,24 @@ public class AMS {
                 String subject =scn.nextLine();
                 System.out.print("Enter description: ");
                 String description =scn.nextLine();
+                String scheduledAt = readScheduled(scn);
+                Appointment clash = queue.findClash(scheduledAt, id);
+                if (clash != null) {
+                    System.out.println("\tNote: " + clash.name + " is already booked at that time (" + clash.subject + ").");
+                }
                 System.out.print("Enter urgency[urgent(1) /medium(2) /low(3)]: ");
-                int priority =Integer.parseInt(scn.nextLine());
+                int priority =readOption(scn, 1, 3);
                 System.out.print("Enter meeting status[due(1) /completed(2) /missed(3)]: ");
-                String status =scn.nextLine();
-                
+                String status =String.valueOf(readOption(scn, 1, 3));
+
                 Appointment app1= new Appointment(id, name, subject, description, priority, status);
-                queue.insert(app1);
-                System.out.println("\tAppointment scheduled!\n");
+                app1.scheduledAt = scheduledAt;
+                if(queue.insert(app1)) {
+                    System.out.println("\tAppointment scheduled!\n");
+                }
+                else {
+                    System.out.println("\tAn appointment with id '" + id + "' already exists, please try again...\n");
+                }
             }
 
             //update appointment
@@ -90,12 +108,12 @@ public class AMS {
                 else{
                     while(true) {
                         //show update navigation buttons
-                        System.out.println("Press 'u' view update fields for Id-" + temp_appointment.id + ":'");
+                        System.out.println("Press 'u' to view update fields for Id-" + temp_appointment.id);
                         System.out.println("Press '0' to exit");
-                        choice = scn.nextLine();
+                        choice = scn.nextLine().trim();
 
                         //show update navigation buttons
-                        if (choice.equals("u")) {
+                        if (choice.equalsIgnoreCase("u")) {
                             showUpdateFields();
                         }
                         //update name
@@ -125,7 +143,7 @@ public class AMS {
                         //update priority
                         else if (choice.equals("4")) {
                             System.out.println("Enter new priority[urgent(1) /medium(2) /low(3)]");
-                            temp_appointment.priority = Integer.parseInt(scn.nextLine());
+                            temp_appointment.priority = readOption(scn, 1, 3);
                             queue.updateById(temp_appointment);
                             System.out.println("\tUpdate success!");
                             break;
@@ -133,7 +151,15 @@ public class AMS {
                         //update status
                         else if (choice.equals("5")) {
                             System.out.println("Enter new status[due(1) /completed(2) /missed(3)]");
-                            temp_appointment.status = scn.nextLine();
+                            temp_appointment.status = String.valueOf(readOption(scn, 1, 3));
+                            queue.updateById(temp_appointment);
+                            System.out.println("\tUpdate success!");
+                            break;
+                        }
+                        //update date and time
+                        else if (choice.equals("6")) {
+                            System.out.println("Currently: " + temp_appointment.scheduledLabel());
+                            temp_appointment.scheduledAt = readScheduled(scn);
                             queue.updateById(temp_appointment);
                             System.out.println("\tUpdate success!");
                             break;
@@ -159,16 +185,12 @@ public class AMS {
                 }
                 else{
                     System.out.println("Are you sure you want to delete this appointment?\nYes['y'] / No['n']");
-                    choice = scn.nextLine();
-                    if(choice.equals("y")){
+                    if(readYesNo(scn)){
                         queue.deleteById(temp_appointment.id);
                         System.out.println("Deletion success!");
                     }
-                    else if(choice.equals("n")){
+                    else{
                         System.out.println("\tDeletion cancelled...");
-                    }
-                    else {
-                        System.out.println("\tinvalid input, please try again...");
                     }
                 }
             }
@@ -185,53 +207,56 @@ public class AMS {
                     System.out.println("Appointment name: "+ temp_appointment.name);
                     System.out.println("Appointment subject: "+ temp_appointment.subject);
                     System.out.println("Appointment description: "+ temp_appointment.description);
-                    System.out.println("Appointment priority: "+ temp_appointment.priority);
-                    System.out.println("Appointment status: "+ temp_appointment.status);
-                    System.out.println("Appointment date created: "+ temp_appointment.dateCreated);
+                    System.out.println("Appointment date & time: "+ temp_appointment.scheduledLabel()
+                            + (temp_appointment.isOverdue() ? " (overdue)" : ""));
+                    System.out.println("Appointment priority: "+ temp_appointment.priorityLabel());
+                    System.out.println("Appointment status: "+ temp_appointment.statusLabel());
+                    System.out.println("Appointment date created: "+ temp_appointment.createdLabel() + " (UTC)");
                 }
             }
             else if(choice.equals("6")){
                 System.out.println("Are you sure you want to delete all appointments?\nYes['y'] / No['n']");
-                    choice = scn.nextLine();
-                    if(choice.equals("y")){
+                    if(readYesNo(scn)){
                         queue.clearAll();
                         System.out.println("Deletion success!");
                     }
-                    else if(choice.equals("n")){
+                    else{
                         System.out.println("\tDeletion cancelled...");
-                    }
-                    else {
-                        System.out.println("\tinvalid input, please try again...");
                     }
             }
 
             else if(choice.equals("7")){
                 System.out.println("[______Backup and Restore Options_____]");
                 selectBackupRestore();
-                choice = scn.nextLine();
+                choice = scn.nextLine().trim();
                 String filename;
                 switch(choice){
                     case "1":
                         System.out.println("Enter the file name of the backup file for Backup:");
                         filename = scn.nextLine();
-                        queue.storeAppointments("Backups/"+filename+".txt");
+                        queue.storeAppointments(DataPaths.backupsFolder() + File.separator + filename + ".txt");
                         break;
                     case "2":
                         System.out.println("Enter the file name of the backup file for Restore:");
                         filename = scn.nextLine();
-                        queue.restoreAppointments("Backups/"+filename+".txt");
+                        queue.restoreAppointments(DataPaths.backupsFolder() + File.separator + filename + ".txt");
                         break;
                     case "0":
                         break;
                     default:
+                        System.out.println("\tinvalid input, please try again...");
                         break;
                 }
             }
-            
+
             //Exit from the tool
-            else if(choice.equals("E")){
-                queue.storeAppointments("src\\ams\\appointment-list.txt");
+            else if(choice.equalsIgnoreCase("E")){
+                queue.storeAppointments(listFile);
                 break;
+            }
+            //invalid input(home interface)
+            else{
+                System.out.println("\tinvalid input '" + choice + "', please choose an option from the menu...");
             }
         }
     }
@@ -239,7 +264,7 @@ public class AMS {
     public static void showMainMenu(){
 
         System.out.println("Enter '1' to view Appointment List");//
-        System.out.println("Enter '2' to place an Appointments");//
+        System.out.println("Enter '2' to place an Appointment");//
         System.out.println("Enter '3' to update an Appointment");//
         System.out.println("Enter '4' to delete an Appointment");//
         System.out.println("Enter '5' to view Appointment by Id");//
@@ -255,10 +280,68 @@ public class AMS {
         System.out.println("Enter '3' to update Description");
         System.out.println("Enter '4' to update priority");
         System.out.println("Enter '5' to update status");
+        System.out.println("Enter '6' to update date & time");
         System.out.println("Enter '0' to Exit");
     }
     public static void selectSortFields(){
-        System.out.println("Sort by: Date:['1']   Name:['2']   Priority:['3']   Exit['0']");
+        System.out.println("Sort by: Date created:['1']   Name:['2']   Priority:['3']   Date & time:['4']   Exit['0']");
+    }
+
+    //read a whole number between min and max, asking again until the input is valid
+    //read when the appointment takes place; returns "" if left blank, otherwise e.g. "2026-10-20T14:30"
+    public static String readScheduled(Scanner scn){
+        LocalDate date;
+        while(true){
+            System.out.print("Enter date [YYYY-MM-DD, 'today', 'tomorrow', or blank for none]: ");
+            String text = scn.nextLine().trim().toLowerCase();
+            if(text.isEmpty()){
+                return "";
+            }
+            try{
+                date = text.equals("today") ? LocalDate.now() : text.equals("tomorrow") ? LocalDate.now().plusDays(1) : LocalDate.parse(text);
+                break;
+            }
+            catch(DateTimeParseException e){
+                System.out.println("\tinvalid date, please use the form 2026-10-20...");
+            }
+        }
+        while(true){
+            System.out.print("Enter time [e.g. 14:30 or 2:30 pm]: ");
+            LocalTime time = UiKit.parseTime(scn.nextLine());
+            if(time != null){
+                return LocalDateTime.of(date, time).toString();
+            }
+            System.out.println("\tinvalid time, please try again...");
+        }
+    }
+
+    public static int readOption(Scanner scn, int min, int max){
+        while(true){
+            try{
+                int value = Integer.parseInt(scn.nextLine().trim());
+                if(value >= min && value <= max){
+                    return value;
+                }
+            }
+            catch(NumberFormatException e){
+                //falls through to the retry message
+            }
+            System.out.print("\tinvalid input, please enter a number from " + min + " to " + max + ": ");
+        }
+    }
+
+    //read a y/n answer (any letter case), asking again until the input is valid
+    public static boolean readYesNo(Scanner scn){
+        while(true){
+            String answer = scn.nextLine().trim();
+            if(answer.equalsIgnoreCase("y")){
+                return true;
+            }
+            if(answer.equalsIgnoreCase("n")){
+                return false;
+            }
+            System.out.print("\tinvalid input, please enter 'y' or 'n': ");
+        }
     }
 
     public static void selectBackupRestore(){

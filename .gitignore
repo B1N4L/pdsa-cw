@@ -1,0 +1,15 @@
+# Build output
+AMS/build/
+AMS/out/
+*.class
+
+# IDE settings
+.idea/
+AMS/nbproject/private/
+
+# Release builds (made by AMS/packaging/build-release.sh)
+AMS/release/
+website/downloads/
+AMS/settings.properties
+website/install.ps1
+website/install.sh
