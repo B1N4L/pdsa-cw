@@ -1,17 +1,17 @@
-# AMS Appointment Manager - uninstaller for Windows (run from Settings > Apps)
+# AMOffline - uninstaller for Windows (run from Settings > Apps)
 # Removes the app, its shortcuts and its Settings > Apps entry.
-# Appointments in %USERPROFILE%\AMS are kept.
+# Appointments in %USERPROFILE%\AMOffline are kept.
 param([switch]$Quiet)
 
 $ErrorActionPreference = 'Stop'
 $Target = $PSScriptRoot
 
-# only remove a folder that really is an AMS install
-if (-not (Test-Path (Join-Path $Target 'runtime\bin\javaw.exe')) -or -not (Test-Path (Join-Path $Target 'app\AMS.jar'))) {
-    throw "$Target does not look like an AMS install folder, so nothing was removed."
+# only remove a folder that really is an AMOffline install
+if (-not (Test-Path (Join-Path $Target 'runtime\bin\javaw.exe')) -or -not (Test-Path (Join-Path $Target 'app\AMOffline.jar'))) {
+    throw "$Target does not look like an AMOffline install folder, so nothing was removed."
 }
 
-# close AMS if it is running
+# close AMOffline if it is running
 Get-Process javaw, java -ErrorAction SilentlyContinue |
     Where-Object { $_.Path -and $_.Path.StartsWith($Target, [StringComparison]::OrdinalIgnoreCase) } |
     Stop-Process -Force -ErrorAction SilentlyContinue
@@ -41,10 +41,10 @@ try {
     Start-Process cmd.exe -ArgumentList "/c timeout /t 3 /nobreak >nul & rmdir /s /q `"$Target`"" -WindowStyle Hidden
 }
 
-$data = Join-Path $env:USERPROFILE 'AMS'
+$data = Join-Path $env:USERPROFILE 'AMOffline'
 if (-not $Quiet) {
     Add-Type -AssemblyName PresentationFramework
-    [void][System.Windows.MessageBox]::Show("AMS has been removed.`n`nYour appointments are still in $data", 'AMS Appointment Manager')
+    [void][System.Windows.MessageBox]::Show("AMOffline has been removed.`n`nYour appointments are still in $data", 'AMOffline')
 } else {
-    Write-Host "AMS has been removed. Your appointments are still in $data"
+    Write-Host "AMOffline has been removed. Your appointments are still in $data"
 }

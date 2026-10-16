@@ -1,16 +1,16 @@
 #!/bin/sh
-# Installs AMS - Appointment Manager for the current user (no sudo needed).
+# Installs AMOffline for the current user (no sudo needed).
 #   Install:    sh install.sh
-#   Uninstall:  sh ~/.local/share/ams/install.sh --uninstall
+#   Uninstall:  sh ~/.local/share/amoffline/install.sh --uninstall
 # Uses the Java included in this folder (64-bit PCs), or the computer's own Java 17+.
-# Your appointments are kept in ~/AMS and are not removed by uninstalling.
+# Your appointments are kept in ~/AMOffline and are not removed by uninstalling.
 set -e
 
 DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
-APP_DIR="$DATA_HOME/ams"
+APP_DIR="$DATA_HOME/amoffline"
 BIN_DIR="$HOME/.local/bin"
-DESKTOP_FILE="$DATA_HOME/applications/ams.desktop"
-ICON_FILE="$DATA_HOME/icons/hicolor/256x256/apps/ams.png"
+DESKTOP_FILE="$DATA_HOME/applications/amoffline.desktop"
+ICON_FILE="$DATA_HOME/icons/hicolor/256x256/apps/amoffline.png"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
 refresh_menus() {
@@ -19,19 +19,19 @@ refresh_menus() {
 }
 
 if [ "$1" = "--uninstall" ]; then
-    rm -f "$BIN_DIR/ams" "$DESKTOP_FILE" "$ICON_FILE"
+    rm -f "$BIN_DIR/amoffline" "$DESKTOP_FILE" "$ICON_FILE"
     rm -rf "$APP_DIR"
     refresh_menus
-    echo "AMS has been removed. Your appointments are still in $HOME/AMS"
+    echo "AMOffline has been removed. Your appointments are still in $HOME/AMOffline"
     exit 0
 fi
 
 if [ "$HERE" = "$APP_DIR" ]; then
-    echo "To reinstall, run install.sh from the downloaded AMS folder (this copy is only for uninstalling)."
+    echo "To reinstall, run install.sh from the downloaded AMOffline folder (this copy is only for uninstalling)."
     exit 1
 fi
 
-echo "Installing AMS Appointment Manager..."
+echo "Installing AMOffline..."
 
 # Java: the included runtime if it suits this computer, otherwise the system's Java 17+
 BUNDLED=no
@@ -41,7 +41,7 @@ case "$(uname -m)" in
 esac
 if [ "$BUNDLED" = no ]; then
     if ! command -v java >/dev/null 2>&1; then
-        echo "AMS needs Java 17 or newer, and Java was not found."
+        echo "AMOffline needs Java 17 or newer, and Java was not found."
         echo "Install it, then run this again:"
         echo "  Ubuntu / Debian / Mint:  sudo apt install openjdk-21-jre"
         echo "  Fedora:                  sudo dnf install java-21-openjdk"
@@ -53,7 +53,7 @@ if [ "$BUNDLED" = no ]; then
         ''|*[!0-9]*) JAVA_MAJOR=0 ;;
     esac
     if [ "$JAVA_MAJOR" -lt 17 ]; then
-        echo "AMS needs Java 17 or newer, but this computer has Java $JAVA_MAJOR."
+        echo "AMOffline needs Java 17 or newer, but this computer has Java $JAVA_MAJOR."
         echo "Install a newer Java (for example: sudo apt install openjdk-21-jre) and run this again."
         exit 1
     fi
@@ -62,8 +62,8 @@ fi
 # copy the app (replacing an older version)
 rm -rf "$APP_DIR"
 mkdir -p "$APP_DIR" "$BIN_DIR" "$(dirname "$DESKTOP_FILE")" "$(dirname "$ICON_FILE")"
-cp "$HERE/AMS.jar" "$HERE/install.sh" "$APP_DIR/"
-cp "$HERE/ams.png" "$ICON_FILE"
+cp "$HERE/AMOffline.jar" "$HERE/install.sh" "$APP_DIR/"
+cp "$HERE/amoffline.png" "$ICON_FILE"
 if [ "$BUNDLED" = yes ]; then
     cp -R "$HERE/runtime" "$APP_DIR/runtime"
     chmod +x "$APP_DIR/runtime/bin/"* "$APP_DIR/runtime/lib/jspawnhelper" 2>/dev/null || true
@@ -72,19 +72,19 @@ else
     JAVA_CMD="java"
 fi
 
-cat > "$BIN_DIR/ams" <<EOF
+cat > "$BIN_DIR/amoffline" <<EOF
 #!/bin/sh
-exec $JAVA_CMD -jar "$APP_DIR/AMS.jar" "\$@"
+exec $JAVA_CMD -jar "$APP_DIR/AMOffline.jar" "\$@"
 EOF
-chmod +x "$BIN_DIR/ams"
+chmod +x "$BIN_DIR/amoffline"
 
 cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
 Type=Application
-Name=AMS Appointment Manager
+Name=AMOffline
 Comment=Organise appointments offline
-Exec="$BIN_DIR/ams"
-Icon=ams
+Exec="$BIN_DIR/amoffline"
+Icon=amoffline
 Terminal=false
 Categories=Office;
 Keywords=appointments;schedule;calendar;
@@ -92,10 +92,10 @@ StartupWMClass=ams-AMSWindow
 EOF
 refresh_menus
 
-echo "AMS is installed$( [ "$BUNDLED" = yes ] && echo ' (Java included)')."
-echo "Open \"AMS Appointment Manager\" from your applications menu, or run: ams"
+echo "AMOffline is installed$( [ "$BUNDLED" = yes ] && echo ' (Java included)')."
+echo "Open \"AMOffline\" from your applications menu, or run: amoffline"
 case ":$PATH:" in
     *":$BIN_DIR:"*) ;;
-    *) echo "(To use the 'ams' command, add $BIN_DIR to your PATH or log out and back in.)" ;;
+    *) echo "(To use the 'amoffline' command, add $BIN_DIR to your PATH or log out and back in.)" ;;
 esac
 echo "To uninstall later: sh $APP_DIR/install.sh --uninstall"

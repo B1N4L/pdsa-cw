@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 
-// Renders the AMS window (and the New appointment form) to PNG files with sample data, for the website.
+// Renders the AMOffline window (and the New appointment form) to PNG files with sample data, for the website.
 // Run with the compiled classes on the class path and -Dams.data pointing at an empty folder:
 //   java -cp <classes> -Dams.data=<empty folder> packaging/tools/Screenshot.java <output folder>
 public class Screenshot {

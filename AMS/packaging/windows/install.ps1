@@ -1,13 +1,13 @@
-# AMS Appointment Manager - installer for Windows
+# AMOffline - installer for Windows
 #
-# Installs AMS for the current user (no administrator needed): copies it to
-# %LOCALAPPDATA%\Programs\AMS, adds Start menu and desktop shortcuts, and lists it in
+# Installs AMOffline for the current user (no administrator needed): copies it to
+# %LOCALAPPDATA%\Programs\AMOffline, adds Start menu and desktop shortcuts, and lists it in
 # Settings > Apps so it can be uninstalled. Java is included.
 #
-# The shortcuts start AMS with the signed Java runtime that comes with it (javaw.exe),
+# The shortcuts start AMOffline with the signed Java runtime that comes with it (javaw.exe),
 # so Windows Smart App Control does not block it.
 #
-# Run it from the extracted AMS-Windows.zip ("Install AMS.cmd"), or online in PowerShell:
+# Run it from the extracted AMOffline-Windows.zip ("Install AMOffline.cmd"), or online in PowerShell:
 #     irm __AMS_BASE_URL__/install.ps1 | iex
 
 $ErrorActionPreference = 'Stop'
@@ -16,16 +16,16 @@ $ProgressPreference = 'SilentlyContinue'
 $Version = '__AMS_VERSION__'
 $Base = if ($env:AMS_BASE_URL) { $env:AMS_BASE_URL } else { '__AMS_BASE_URL__' }
 # These can be changed for testing; normal installs use the defaults
-$Target = if ($env:AMS_INSTALL_DIR) { $env:AMS_INSTALL_DIR } else { Join-Path $env:LOCALAPPDATA 'Programs\AMS' }
+$Target = if ($env:AMS_INSTALL_DIR) { $env:AMS_INSTALL_DIR } else { Join-Path $env:LOCALAPPDATA 'Programs\AMOffline' }
 $ShortcutDirs = if ($env:AMS_SHORTCUT_DIR) { @($env:AMS_SHORTCUT_DIR) } else {
     @([Environment]::GetFolderPath('Programs'), [Environment]::GetFolderPath('Desktop'))
 }
-$UninstallKey = if ($env:AMS_REG_KEY) { $env:AMS_REG_KEY } else { 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\AMS-Appointment-Manager' }
+$UninstallKey = if ($env:AMS_REG_KEY) { $env:AMS_REG_KEY } else { 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\AMOffline' }
 
 function Step($text) { Write-Host "  $text" }
 
 Write-Host ''
-Write-Host "Installing AMS Appointment Manager $Version" -ForegroundColor Cyan
+Write-Host "Installing AMOffline $Version" -ForegroundColor Cyan
 Write-Host ''
 
 # 1. Find the app files: next to this script (extracted zip), or download them
@@ -34,23 +34,23 @@ $scriptDir = $PSScriptRoot
 if ($scriptDir -and (Test-Path (Join-Path $scriptDir '..\runtime\bin\javaw.exe'))) {
     $source = (Resolve-Path (Join-Path $scriptDir '..')).Path
 } else {
-    $zipUrl = "$Base/downloads/AMS-Windows.zip"
+    $zipUrl = "$Base/downloads/AMOffline-Windows.zip"
     Step "Downloading $zipUrl ..."
     [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
-    $cleanup = Join-Path ([IO.Path]::GetTempPath()) ('ams-install-' + [Guid]::NewGuid().ToString('N'))
+    $cleanup = Join-Path ([IO.Path]::GetTempPath()) ('amoffline-install-' + [Guid]::NewGuid().ToString('N'))
     New-Item -ItemType Directory -Path $cleanup | Out-Null
-    $zip = Join-Path $cleanup 'AMS-Windows.zip'
+    $zip = Join-Path $cleanup 'AMOffline-Windows.zip'
     (New-Object Net.WebClient).DownloadFile($zipUrl, $zip)
     Step 'Unpacking ...'
     Expand-Archive -Path $zip -DestinationPath $cleanup
-    $source = Join-Path $cleanup 'AMS'
+    $source = Join-Path $cleanup 'AMOffline'
 }
-if (-not (Test-Path (Join-Path $source 'runtime\bin\javaw.exe')) -or -not (Test-Path (Join-Path $source 'app\AMS.jar'))) {
-    throw "The AMS files were not found in $source"
+if (-not (Test-Path (Join-Path $source 'runtime\bin\javaw.exe')) -or -not (Test-Path (Join-Path $source 'app\AMOffline.jar'))) {
+    throw "The AMOffline files were not found in $source"
 }
 
 try {
-    # 2. Close AMS if it is running from the install folder, then replace the old files
+    # 2. Close AMOffline if it is running from the install folder, then replace the old files
     Get-Process javaw, java -ErrorAction SilentlyContinue |
         Where-Object { $_.Path -and $_.Path.StartsWith($Target, [StringComparison]::OrdinalIgnoreCase) } |
         Stop-Process -Force -ErrorAction SilentlyContinue
@@ -63,23 +63,23 @@ try {
     }
     Copy-Item -Recurse -Force (Join-Path $source 'runtime') $Target
     Copy-Item -Recurse -Force (Join-Path $source 'app') $Target
-    Copy-Item -Force (Join-Path $source 'ams.ico') $Target
+    Copy-Item -Force (Join-Path $source 'amoffline.ico') $Target
     Copy-Item -Force (Join-Path $source 'setup\uninstall.ps1') $Target
 
-    # 3. Start menu and desktop shortcuts that run AMS with the included (signed) Java
+    # 3. Start menu and desktop shortcuts that run AMOffline with the included (signed) Java
     $javaw = Join-Path $Target 'runtime\bin\javaw.exe'
-    $jar = Join-Path $Target 'app\AMS.jar'
+    $jar = Join-Path $Target 'app\AMOffline.jar'
     $shell = New-Object -ComObject WScript.Shell
     $made = @()
     foreach ($dir in $ShortcutDirs) {
         if (-not $dir) { continue }
         New-Item -ItemType Directory -Force -Path $dir | Out-Null
-        $path = Join-Path $dir 'AMS Appointment Manager.lnk'
+        $path = Join-Path $dir 'AMOffline.lnk'
         $link = $shell.CreateShortcut($path)
         $link.TargetPath = $javaw
         $link.Arguments = "-jar `"$jar`""
         $link.WorkingDirectory = $Target
-        $link.IconLocation = (Join-Path $Target 'ams.ico') + ',0'
+        $link.IconLocation = (Join-Path $Target 'amoffline.ico') + ',0'
         $link.Description = 'Organise appointments offline'
         $link.Save()
         $made += $path
@@ -91,8 +91,8 @@ try {
     $uninstall = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$(Join-Path $Target 'uninstall.ps1')`""
     New-Item -Force -Path $UninstallKey | Out-Null
     $values = @{
-        DisplayName = 'AMS Appointment Manager'; DisplayVersion = $Version; Publisher = 'Trio Branch'
-        DisplayIcon = (Join-Path $Target 'ams.ico'); InstallLocation = $Target; URLInfoAbout = 'https://triobranch.com'
+        DisplayName = 'AMOffline'; DisplayVersion = $Version; Publisher = 'Trio Branch'
+        DisplayIcon = (Join-Path $Target 'amoffline.ico'); InstallLocation = $Target; URLInfoAbout = 'https://triobranch.com'
         UninstallString = $uninstall; QuietUninstallString = "$uninstall -Quiet"
     }
     foreach ($name in $values.Keys) { Set-ItemProperty -Path $UninstallKey -Name $name -Value $values[$name] }
@@ -108,11 +108,11 @@ try {
 }
 
 Write-Host ''
-Write-Host 'AMS is installed. Open it from the Start menu or the desktop shortcut.' -ForegroundColor Green
-Write-Host "Your appointments are saved in $(Join-Path $env:USERPROFILE 'AMS')"
+Write-Host 'AMOffline is installed. Open it from the Start menu or the desktop shortcut.' -ForegroundColor Green
+Write-Host "Your appointments are saved in $(Join-Path $env:USERPROFILE 'AMOffline')"
 Write-Host ''
 
-# 5. Start AMS now
+# 5. Start AMOffline now
 if (-not $env:AMS_NO_LAUNCH) {
     Start-Process -FilePath $javaw -ArgumentList "-jar `"$jar`"" -WorkingDirectory $Target
 }

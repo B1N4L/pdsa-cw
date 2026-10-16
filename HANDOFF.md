@@ -1,6 +1,11 @@
-# Handoff: AMS (Appointment Management System)
+# Handoff: AMOffline (AMS, Appointment Management System)
 
 Last updated: 16 October 2026.
+
+The app is called **AMOffline** (renamed from AMS on 16 October 2026). That name is used everywhere
+people see it: the window, the website, the downloads, the installers, the data folder (`~/AMOffline`)
+and the Linux command (`amoffline`). The code keeps its coursework names: the `AMS/` project folder,
+package `ams`, classes `AMS` and `AMSWindow`, and the `-Dams.*` and `AMS_*` test settings.
 
 PDSA coursework project. The core is a priority-ordered **doubly linked list** of appointments
 (`AMS/src/ams/LinkedList.java`) with bubble-sort methods for priority, name, date created and
@@ -30,6 +35,8 @@ Everything below has been built and checked on Windows 11 (with Smart App Contro
 - Installers were tested end to end: online one-liner, `Install AMS.cmd` from a zip with
   downloaded marks, open from the shortcut, then uninstall. The Linux installer was tested in
   Git Bash only (see "Not done yet").
+- **The rename to AMOffline has not been built or tested yet.** Run the SmokeTest and a full
+  build and install once before deploying.
 - Automated check: `SmokeTest` runs **54 checks, all passing**.
 
 Nothing is deployed online yet.
@@ -49,7 +56,7 @@ AMS/src/ams/            Java source (package ams)
   appointment-list.txt    sample data used when running from the project
 AMS/packaging/
   build-release.sh        builds everything for the website (run with bash / Git Bash)
-  windows/                install.ps1, uninstall.ps1, "Install AMS.cmd", README.txt
+  windows/                install.ps1, uninstall.ps1, "Install AMOffline.cmd", README.txt
   linux/                  install.sh (in the download), install-online.sh (one-command), README.txt
   tools/                  SmokeTest.java, Screenshot.java, MakeIcons.java
 website/                  index.html + assets/ (committed)
@@ -80,11 +87,11 @@ website/                  index.html + assets/ (committed)
    ```
 5. **Build the downloads** (Git Bash on Windows, or any bash). On Windows, set `JAVA_HOME` first if `javac` isn't on the PATH:
    ```
-   SITE_URL=https://your-site.example bash AMS/packaging/build-release.sh
+   SITE_URL=https://amoffline.netlify.app bash AMS/packaging/build-release.sh
    ```
    - `SITE_URL` is written into the one-command installers. Without it, they point to `http://localhost:8137`.
-   - `AMS-Windows.zip` is only made when building **on Windows**.
-   - `AMS-Linux-x64.tar.gz` (Java included) needs the **Linux JDK of exactly the same version** as
+   - `AMOffline-Windows.zip` is only made when building **on Windows**.
+   - `AMOffline-Linux-x64.tar.gz` (Java included) needs the **Linux JDK of exactly the same version** as
      your JDK (check `jlink --version`). Its jmods are taken from
      `AMS/out/linux-jdk-download/jdk-linux.tar.gz`. For 21.0.12.1 that is
      `https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_linux_hotspot_21.0.12.1_1.tar.gz`
@@ -95,7 +102,7 @@ website/                  index.html + assets/ (committed)
 ## How things work (decisions worth knowing)
 
 - **Where data lives.** Run from the project, it uses `AMS/src/ams/appointment-list.txt`. Installed,
-  it uses `~/AMS` (`C:\Users\<you>\AMS`), with backups in `~/AMS/Backups`. `-Dams.data=<folder>`
+  it uses `~/AMOffline` (`C:\Users\<you>\AMOffline`), with backups in `~/AMOffline/Backups`. `-Dams.data=<folder>`
   overrides it, which tests use. The theme choice goes in `settings.properties` in the same folder.
 - **File format.** Blocks of `Label: value` lines with a blank line between them. The reader matches
   fields by label, so old files without the newer `Scheduled:` line still load. Line breaks inside
@@ -108,11 +115,11 @@ website/                  index.html + assets/ (committed)
 - **Windows install.** There is deliberately **no generated `.exe` launcher**. Windows 11's Smart App
   Control blocked jpackage's unsigned `AMS.exe` (it has no "Run anyway"). Instead the zip carries a
   `jlink` Java runtime, whose `java.exe`/`javaw.exe` are signed by the Eclipse Foundation. The installer
-  makes Start menu and desktop shortcuts to `javaw.exe -jar app\AMS.jar` and adds an uninstall
+  makes Start menu and desktop shortcuts to `javaw.exe -jar app\AMOffline.jar` and adds an uninstall
   entry under HKCU, so no admin rights are needed. Smart App Control allows all of this.
   `install.ps1` reads `AMS_INSTALL_DIR`, `AMS_SHORTCUT_DIR`, `AMS_REG_KEY` and `AMS_NO_LAUNCH`
   so tests can install into temp folders.
-- **Linux install.** It installs per user into `~/.local/share/ams`, `~/.local/bin/ams` and a `.desktop`
+- **Linux install.** It installs per user into `~/.local/share/amoffline`, `~/.local/bin/amoffline` and a `.desktop`
   entry. It uses the bundled runtime on x86_64, otherwise the system's Java 17+. The online script
   picks the right tarball for the processor.
 - **Website.** Plain static HTML. The install commands fill in the page's own address, and download
@@ -120,14 +127,17 @@ website/                  index.html + assets/ (committed)
 
 ## Not done yet / next steps
 
-1. **Hosting.** Choose Netlify or GitHub Pages + Releases. Rebuild with `SITE_URL` set to the real
-   address, then deploy the whole `website/` folder, **including the generated** `downloads/`,
-   `install.ps1` and `install.sh`. The files are about 31 MB and 34 MB, under the per-file limits of both.
+1. **Hosting** on Netlify at **https://amoffline.netlify.app** (project name `amoffline`), owned by
+   the repo owner. Build on Windows with `SITE_URL=https://amoffline.netlify.app`, then upload the
+   whole `website/` folder, **including the generated** `downloads/`, `install.ps1` and `install.sh`:
+   `netlify deploy --prod --dir website --no-build`. Use the Netlify CLI, not drag-and-drop: Netlify
+   says drag-and-drop deploys can stall on files over 10 MB, and two downloads are about 31 MB and 34 MB.
+   Don't connect the repo for Git builds either, since Netlify can't build the Windows zip.
 2. **Test on a real Linux desktop** (e.g. Ubuntu 24.04): the bundled runtime, the menu entry,
    dark-mode detection under GNOME/KDE, and `curl … | sh`. These were only checked from Windows.
 3. Optional: **code-sign** for Windows (e.g. Azure Trusted Signing, or Certum's open-source certificate).
-   That would make the "Run Install AMS?" prompt friendlier.
+   That would make the "Run Install AMOffline?" prompt friendlier.
 4. Known limits:
    - In dark mode, the Windows title bar stays light (Java can't change it).
    - Pinning the *running* window to the taskbar pins Java. Pin from the Start menu shortcut instead.
-   - macOS only has `AMS.jar`, which needs Java.
+   - macOS only has `AMOffline.jar`, which needs Java.

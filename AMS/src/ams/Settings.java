@@ -38,7 +38,7 @@ public class Settings {
     public static void set(String key, String value) {
         load().setProperty(key, value);
         try (FileWriter writer = new FileWriter(file(), StandardCharsets.UTF_8)) {
-            values.store(writer, "AMS settings");
+            values.store(writer, "AMOffline settings");
         } catch (IOException e) {
             // the setting still applies until the app is closed
         }

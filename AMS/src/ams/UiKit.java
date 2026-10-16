@@ -368,7 +368,7 @@ public class UiKit {
         private static ColorUIResource res(Color c) { return new ColorUIResource(c); }
         private static FontUIResource fontRes(int style) { return new FontUIResource(font(style, 13)); }
 
-        @Override public String getName() { return "AMS"; }
+        @Override public String getName() { return "AMOffline"; }
         @Override protected ColorUIResource getPrimary1() { return res(ACCENT_HOVER); }
         @Override protected ColorUIResource getPrimary2() { return res(ACCENT); }
         @Override protected ColorUIResource getPrimary3() { return res(SELECTION); }

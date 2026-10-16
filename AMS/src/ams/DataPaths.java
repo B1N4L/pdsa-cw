@@ -8,7 +8,7 @@ public class DataPaths {
     // When run from the project folder (IDE or console) the project's own list file is used
     private static final File PROJECT_LIST = new File("src" + File.separator + "ams" + File.separator + "appointment-list.txt");
 
-    // Folder that holds the data: the project folder, or an "AMS" folder in the user's home
+    // Folder that holds the data: the project folder, or an "AMOffline" folder in the user's home
     // (can be changed with -Dams.data=<folder>)
     public static File dataFolder() {
         String override = System.getProperty("ams.data");
@@ -18,7 +18,7 @@ public class DataPaths {
         } else if (PROJECT_LIST.exists()) {
             return new File(".");
         } else {
-            folder = new File(System.getProperty("user.home"), "AMS");
+            folder = new File(System.getProperty("user.home"), "AMOffline");
         }
         folder.mkdirs();
         return folder;

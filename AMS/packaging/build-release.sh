@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Builds the downloadable files and installers for the AMS website.
+# Builds the downloadable files and installers for the AMOffline website.
 #   SITE_URL=https://your-site.example bash packaging/build-release.sh
 # (run from anywhere; needs JDK 17 or newer. SITE_URL is the address the website will be served from;
 #  it is written into the online installers. It defaults to the local preview address.)
 #
 # Output (in AMS/release, and copied to website/downloads):
-#   AMS-Windows.zip       Windows app with Java included + "Install AMS.cmd" (only when built on Windows)
-#   AMS-Linux-x64.tar.gz  Linux app with Java included + install.sh (needs the Linux JDK's jmods, see below)
-#   AMS-Linux.tar.gz      Linux app without Java (for other processors) + install.sh
-#   AMS.jar               runs on any OS with Java 17+
+#   AMOffline-Windows.zip      Windows app with Java included + "Install AMOffline.cmd" (only when built on Windows)
+#   AMOffline-Linux-x64.tar.gz Linux app with Java included + install.sh (needs the Linux JDK's jmods, see below)
+#   AMOffline-Linux.tar.gz     Linux app without Java (for other processors) + install.sh
+#   AMOffline.jar              runs on any OS with Java 17+
 # and the one-command installers website/install.ps1 (Windows) and website/install.sh (Linux).
 #
 # The Linux runtime is made from the Linux JDK's jmods, of the same Java version as this JDK. Put the
@@ -47,23 +47,23 @@ crlf() {
     sed -i 's/\r$//; s/$/\r/' "$@"
 }
 
-# Make a .tar.gz of folder $1/AMS where install.sh and the Java programs are executable
+# Make a .tar.gz of folder $1/AMOffline where install.sh and the Java programs are executable
 make_tar() {
     local dir="$1" out="$2"
     if tar --version 2>/dev/null | grep -q "GNU tar"; then
         tar -C "$dir" --owner=0 --group=0 --mode='u=rwX,go=rX' \
-            --exclude='AMS/install.sh' --exclude='AMS/runtime/bin/*' --exclude='AMS/runtime/lib/jspawnhelper' \
-            -cf "$out.tar" AMS
-        local executables=(AMS/install.sh)
-        if [ -d "$dir/AMS/runtime/bin" ]; then
-            executables+=($(cd "$dir" && ls AMS/runtime/bin/* AMS/runtime/lib/jspawnhelper 2>/dev/null))
+            --exclude='AMOffline/install.sh' --exclude='AMOffline/runtime/bin/*' --exclude='AMOffline/runtime/lib/jspawnhelper' \
+            -cf "$out.tar" AMOffline
+        local executables=(AMOffline/install.sh)
+        if [ -d "$dir/AMOffline/runtime/bin" ]; then
+            executables+=($(cd "$dir" && ls AMOffline/runtime/bin/* AMOffline/runtime/lib/jspawnhelper 2>/dev/null))
         fi
         tar -C "$dir" --owner=0 --group=0 --mode=0755 -rf "$out.tar" "${executables[@]}"
         gzip -9 -c "$out.tar" > "$out"
         rm -f "$out.tar"
     else
-        chmod +x "$dir/AMS/install.sh"
-        tar -C "$dir" -czf "$out" AMS
+        chmod +x "$dir/AMOffline/install.sh"
+        tar -C "$dir" -czf "$out" AMOffline
     fi
 }
 
@@ -77,20 +77,20 @@ echo "== Compiling"
 echo "== Icons"
 "${JBIN}java" -cp "$BUILD/classes" "$AMS_DIR/packaging/tools/MakeIcons.java" "$BUILD/icons"
 
-echo "== AMS.jar"
-"${JBIN}jar" --create --file "$BUILD/jar/AMS.jar" --main-class ams.AMSWindow -C "$BUILD/classes" .
-cp "$BUILD/jar/AMS.jar" "$RELEASE/AMS.jar"
+echo "== AMOffline.jar"
+"${JBIN}jar" --create --file "$BUILD/jar/AMOffline.jar" --main-class ams.AMSWindow -C "$BUILD/classes" .
+cp "$BUILD/jar/AMOffline.jar" "$RELEASE/AMOffline.jar"
 
 # Linux bundle without Java, then (if the Linux jmods are available) with Java
 linux_bundle() {
     local dir="$1"
-    mkdir -p "$dir/AMS"
-    cp "$BUILD/jar/AMS.jar" "$BUILD/icons/ams.png" "$AMS_DIR/packaging/linux/README.txt" "$dir/AMS/"
-    sed 's/\r$//' "$AMS_DIR/packaging/linux/install.sh" > "$dir/AMS/install.sh"
+    mkdir -p "$dir/AMOffline"
+    cp "$BUILD/jar/AMOffline.jar" "$BUILD/icons/amoffline.png" "$AMS_DIR/packaging/linux/README.txt" "$dir/AMOffline/"
+    sed 's/\r$//' "$AMS_DIR/packaging/linux/install.sh" > "$dir/AMOffline/install.sh"
 }
-echo "== AMS-Linux.tar.gz (uses the computer's Java)"
+echo "== AMOffline-Linux.tar.gz (uses the computer's Java)"
 linux_bundle "$BUILD/linux"
-make_tar "$BUILD/linux" "$RELEASE/AMS-Linux.tar.gz"
+make_tar "$BUILD/linux" "$RELEASE/AMOffline-Linux.tar.gz"
 
 LINUX_JMODS="${LINUX_JMODS:-}"
 if [ -z "$LINUX_JMODS" ]; then
@@ -103,31 +103,31 @@ if [ -z "$LINUX_JMODS" ]; then
     LINUX_JMODS="$(ls -d "$AMS_DIR"/out/linux-jdk/*/jmods 2>/dev/null | head -n 1 || true)"
 fi
 if [ -n "$LINUX_JMODS" ] && [ -f "$LINUX_JMODS/java.base.jmod" ]; then
-    echo "== AMS-Linux-x64.tar.gz (Java included)"
+    echo "== AMOffline-Linux-x64.tar.gz (Java included)"
     linux_bundle "$BUILD/linux-x64"
-    "${JBIN}jlink" --module-path "$LINUX_JMODS" --add-modules "$MODULES" "${JLINK_OPTIONS[@]}" --output "$BUILD/linux-x64/AMS/runtime"
-    make_tar "$BUILD/linux-x64" "$RELEASE/AMS-Linux-x64.tar.gz"
+    "${JBIN}jlink" --module-path "$LINUX_JMODS" --add-modules "$MODULES" "${JLINK_OPTIONS[@]}" --output "$BUILD/linux-x64/AMOffline/runtime"
+    make_tar "$BUILD/linux-x64" "$RELEASE/AMOffline-Linux-x64.tar.gz"
 else
-    echo "== Skipping AMS-Linux-x64.tar.gz (no Linux jmods; see the note at the top)"
+    echo "== Skipping AMOffline-Linux-x64.tar.gz (no Linux jmods; see the note at the top)"
 fi
 
 if [ "$OS" = windows ]; then
     # The shortcuts run the signed javaw.exe from the included Java, so Smart App Control allows it
     # (a generated, unsigned launcher .exe would be blocked).
-    echo "== AMS-Windows.zip (Java included)"
-    W="$BUILD/windows/AMS"
+    echo "== AMOffline-Windows.zip (Java included)"
+    W="$BUILD/windows/AMOffline"
     mkdir -p "$W/app" "$W/setup"
     "${JBIN}jlink" --add-modules "$MODULES" "${JLINK_OPTIONS[@]}" --output "$W/runtime"
-    cp "$BUILD/jar/AMS.jar" "$W/app/"
-    cp "$BUILD/icons/ams.ico" "$W/"
+    cp "$BUILD/jar/AMOffline.jar" "$W/app/"
+    cp "$BUILD/icons/amoffline.ico" "$W/"
     fill "$AMS_DIR/packaging/windows/install.ps1" > "$W/setup/install.ps1"
     cp "$AMS_DIR/packaging/windows/uninstall.ps1" "$W/setup/"
-    cp "$AMS_DIR/packaging/windows/Install AMS.cmd" "$AMS_DIR/packaging/windows/README.txt" "$W/"
-    crlf "$W/setup/install.ps1" "$W/setup/uninstall.ps1" "$W/Install AMS.cmd" "$W/README.txt"
+    cp "$AMS_DIR/packaging/windows/Install AMOffline.cmd" "$AMS_DIR/packaging/windows/README.txt" "$W/"
+    crlf "$W/setup/install.ps1" "$W/setup/uninstall.ps1" "$W/Install AMOffline.cmd" "$W/README.txt"
     # Windows' own tar.exe writes .zip files
-    (cd "$BUILD/windows" && "$(cygpath -u "${SYSTEMROOT:-C:\\Windows}")/System32/tar.exe" -a -c -f "$(cygpath -w "$RELEASE/AMS-Windows.zip")" AMS)
+    (cd "$BUILD/windows" && "$(cygpath -u "${SYSTEMROOT:-C:\\Windows}")/System32/tar.exe" -a -c -f "$(cygpath -w "$RELEASE/AMOffline-Windows.zip")" AMOffline)
 else
-    echo "== Skipping AMS-Windows.zip (build on Windows to make it)"
+    echo "== Skipping AMOffline-Windows.zip (build on Windows to make it)"
 fi
 
 echo "== Website downloads and one-command installers ($SITE_URL)"

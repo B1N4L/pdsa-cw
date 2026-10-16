@@ -8,14 +8,14 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-// Writes the app icon as ams.png (Linux), ams.ico (Windows) and icon-*.png (website), drawn by ams.UiKit.
+// Writes the app icon as amoffline.png (Linux), amoffline.ico (Windows) and icon-*.png (website), drawn by ams.UiKit.
 //   java -cp <classes> packaging/tools/MakeIcons.java <output folder>
 public class MakeIcons {
 
     public static void main(String[] args) throws Exception {
         File out = new File(args.length > 0 ? args[0] : ".");
         out.mkdirs();
-        ImageIO.write(icon(256), "png", new File(out, "ams.png"));
+        ImageIO.write(icon(256), "png", new File(out, "amoffline.png"));
         ImageIO.write(icon(512), "png", new File(out, "icon-512.png"));
         ImageIO.write(icon(180), "png", new File(out, "icon-180.png"));
         ImageIO.write(icon(64), "png", new File(out, "icon-64.png"));
@@ -37,7 +37,7 @@ public class MakeIcons {
             header.putInt(images.get(i).length).putInt(offset);
             offset += images.get(i).length;
         }
-        try (FileOutputStream ico = new FileOutputStream(new File(out, "ams.ico"))) {
+        try (FileOutputStream ico = new FileOutputStream(new File(out, "amoffline.ico"))) {
             ico.write(header.array());
             for (byte[] image : images) {
                 ico.write(image);

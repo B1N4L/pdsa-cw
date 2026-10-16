@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-// Drives the AMS window's own code without showing it, and checks the results.
+// Drives the AMOffline window's own code without showing it, and checks the results.
 //   java -cp <classes> -Dams.data=<empty folder> packaging/tools/SmokeTest.java
 public class SmokeTest {
 

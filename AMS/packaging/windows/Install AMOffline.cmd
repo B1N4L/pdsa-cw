@@ -1,6 +1,6 @@
 @echo off
-rem Installs AMS Appointment Manager for this Windows user (no administrator needed). Java is included.
-title Installing AMS Appointment Manager
+rem Installs AMOffline for this Windows user (no administrator needed). Java is included.
+title Installing AMOffline
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0setup\install.ps1"
 if errorlevel 1 (
     echo.

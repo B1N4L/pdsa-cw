@@ -51,7 +51,7 @@ public class AMSWindow extends JFrame {
     private final JLabel countLabel = UiKit.label(" ", Font.PLAIN, 12, UiKit.MUTED);
 
     public AMSWindow() {
-        super("AMS - Appointment Manager");
+        super("AMOffline");
         setIconImages(UiKit.appIcons());
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
@@ -341,7 +341,7 @@ public class AMSWindow extends JFrame {
         JMenu help = new JMenu("Help");
         help.setMnemonic('H');
         help.add(item("Keyboard shortcuts", null, this::showShortcuts));
-        help.add(item("About AMS", null, this::showAbout));
+        help.add(item("About AMOffline", null, this::showAbout));
 
         bar.add(file);
         bar.add(edit);
@@ -487,7 +487,7 @@ public class AMSWindow extends JFrame {
         JPanel about = new JPanel();
         about.setOpaque(false);
         about.setLayout(new BoxLayout(about, BoxLayout.Y_AXIS));
-        about.add(UiKit.label("AMS - Appointment Manager", Font.BOLD, 15, UiKit.TEXT));
+        about.add(UiKit.label("AMOffline", Font.BOLD, 15, UiKit.TEXT));
         about.add(Box.createVerticalStrut(4));
         about.add(UiKit.label("An offline tool for organising appointments.", Font.PLAIN, 13, UiKit.TEXT));
         about.add(Box.createVerticalStrut(12));
@@ -496,7 +496,7 @@ public class AMSWindow extends JFrame {
         about.add(UiKit.label(new File(listFile).getAbsolutePath(), Font.PLAIN, 13, UiKit.MUTED));
         about.add(Box.createVerticalStrut(14));
         about.add(link("Powered by ", "Trio Branch", "https://triobranch.com"));
-        JOptionPane.showMessageDialog(this, about, "About AMS", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(UiKit.appIcon(64)));
+        JOptionPane.showMessageDialog(this, about, "About AMOffline", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(UiKit.appIcon(64)));
     }
 
     // Text with a clickable link that opens in the web browser
