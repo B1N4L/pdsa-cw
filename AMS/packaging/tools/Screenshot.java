@@ -82,7 +82,7 @@ public class Screenshot {
     private static void hidePath(Container container) {
         for (Component c : container.getComponents()) {
             if (c instanceof JLabel && ((JLabel) c).getText() != null && ((JLabel) c).getText().startsWith("Data file:")) {
-                ((JLabel) c).setText("Data file: C:\\Users\\you\\AMS\\appointment-list.txt");
+                ((JLabel) c).setText("Data file: C:\\Users\\you\\AMOffline\\appointment-list.txt");
             } else if (c instanceof Container) {
                 hidePath((Container) c);
             }
