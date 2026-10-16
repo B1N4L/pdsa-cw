@@ -435,17 +435,23 @@ sh AMOffline/install.sh</code></pre>
 <script>
   (function () {
     var release = window.AMS_RELEASE || { version: "1.2.0", sizes: {} };
+    var hero = null, heroFile = "", heroNote = "";
 
     function formatSize(bytes) {
       if (!bytes) return "\u2014";
       if (bytes >= 1048576) return (bytes / 1048576).toFixed(0) + " MB";
       return Math.max(1, Math.round(bytes / 1024)) + " KB";
     }
-    document.querySelectorAll("[data-size]").forEach(function (el) {
-      el.textContent = formatSize(release.sizes && release.sizes[el.getAttribute("data-size")]);
-    });
-    document.getElementById("version-line").textContent = "Version " + release.version + (release.built ? ", released " + release.built + "." : ".");
-    document.getElementById("footer-version").textContent = "Version " + release.version;
+    function showRelease() {
+      document.querySelectorAll("[data-size]").forEach(function (el) {
+        el.textContent = formatSize(release.sizes && release.sizes[el.getAttribute("data-size")]);
+      });
+      document.getElementById("version-line").textContent = "Version " + release.version + (release.built ? ", released " + release.built + "." : ".");
+      document.getElementById("footer-version").textContent = "Version " + release.version;
+      if (hero) {
+        document.getElementById("hero-meta").textContent = "Version " + release.version + " \u00b7 " + formatSize(release.sizes && release.sizes[heroFile]) + " \u00b7 " + heroNote;
+      }
+    }
 
     // Work out which download suits this computer
     var ua = (navigator.userAgent || "").toLowerCase();
@@ -460,16 +466,36 @@ sh AMOffline/install.sh</code></pre>
       document.documentElement.classList.add("is-mobile");
     } else {
       document.getElementById("dl-" + os).classList.add("recommended");
-      var hero = document.getElementById("hero-download");
+      hero = document.getElementById("hero-download");
       var heroText = document.getElementById("hero-download-text");
-      var meta = document.getElementById("hero-meta");
       var files = { windows: "AMOffline-Windows.zip", linux: "AMOffline-Linux.tar.gz", jar: "AMOffline.jar" };
       var labels = { windows: "Download for Windows", linux: "Download for Linux", jar: "Download for macOS" };
       var notes = { windows: "Java included", linux: "needs Java 17+", jar: "needs Java 17+" };
-      hero.href = "downloads/" + files[os];
+      heroFile = files[os];
+      heroNote = notes[os];
+      hero.href = "downloads/" + heroFile;
       hero.setAttribute("download", "");
       heroText.textContent = labels[os];
-      meta.textContent = "Version " + release.version + " \u00b7 " + formatSize(release.sizes && release.sizes[files[os]]) + " \u00b7 " + notes[os];
+    }
+    showRelease();
+
+    // The downloads are on the latest GitHub release (see _redirects): show its version and file sizes
+    if (window.fetch && /^https?:/.test(location.protocol)) {
+      fetch("https://api.github.com/repos/B1N4L/pdsa-cw/releases/latest", { headers: { Accept: "application/vnd.github+json" } })
+        .then(function (response) { return response.ok ? response.json() : null; })
+        .then(function (latest) {
+          if (!latest || !latest.assets) return;
+          var sizes = {};
+          latest.assets.forEach(function (asset) { sizes[asset.name] = asset.size; });
+          release = {
+            version: String(latest.tag_name || release.version).replace(/^v/, ""),
+            built: latest.published_at ? latest.published_at.slice(0, 10) : release.built,
+            site: release.site,
+            sizes: sizes
+          };
+          showRelease();
+        })
+        .catch(function () {});
     }
 
     // Install tabs (arrow keys move between them)

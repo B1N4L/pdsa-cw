@@ -15,7 +15,7 @@
 # Linux JDK .tar.gz in AMS/out/linux-jdk-download/jdk-linux.tar.gz (or set LINUX_JMODS to its jmods folder).
 set -euo pipefail
 
-VERSION="1.2.0"
+VERSION="${VERSION:-1.2.0}"   # the release action sets VERSION from the release's tag
 SITE_URL="${SITE_URL:-http://localhost:8137}"
 SITE_URL="${SITE_URL%/}"
 AMS_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -133,10 +133,8 @@ fi
 echo "== Website files and one-command installers ($SITE_URL)"
 # The download files themselves are not copied: they go on a GitHub release, and
 # website/_redirects sends /downloads/<file> there, so the website folder stays small.
-mkdir -p "$SITE_DIR/downloads" "$SITE_DIR/assets"
-fill "$AMS_DIR/packaging/windows/install.ps1" > "$SITE_DIR/install.ps1"
-crlf "$SITE_DIR/install.ps1"
-fill "$AMS_DIR/packaging/linux/install-online.sh" | sed 's/\r$//' > "$SITE_DIR/install.sh"
+SITE_URL="$SITE_URL" VERSION="$VERSION" bash "$AMS_DIR/packaging/build-site.sh"
+mkdir -p "$SITE_DIR/assets"
 cp "$BUILD/icons/icon-512.png" "$BUILD/icons/icon-180.png" "$BUILD/icons/icon-64.png" "$SITE_DIR/assets/"
 # screenshots of the app with sample data (needs a desktop session; skipped if it fails)
 for THEME in light dark; do
@@ -169,5 +167,5 @@ echo
 echo "Done:"
 ls -l "$RELEASE"
 echo
-echo "Next: attach the files above to a GitHub release (tag v$VERSION, set as the latest release),"
-echo "then upload the website folder to Netlify."
+echo "These files belong on the GitHub release v$VERSION. Publishing a release on GitHub runs the"
+echo "Release action (.github/workflows/release.yml), which builds and attaches them automatically."

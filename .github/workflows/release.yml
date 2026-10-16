@@ -1,0 +1,68 @@
+# Builds AMOffline and attaches the four download files to a GitHub release.
+# It runs when a release is published (Releases > Draft a new release > Publish release),
+# on one of GitHub's Windows machines, so nobody needs Java on their own computer.
+# The website (https://amoffline.netlify.app) always downloads from the latest release.
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag of an existing release to build again (for example v1.2.0)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      SITE_URL: https://amoffline.netlify.app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Download the Linux JDK of the same version (for the Linux download with Java included)
+        run: |
+          set -euo pipefail
+          release_info="$(tr -d '\r' < "$(cygpath -u "$JAVA_HOME")/release")"
+          version="$(sed -n 's/^IMPLEMENTOR_VERSION="Temurin-\(.*\)"/\1/p' <<< "$release_info")"
+          [ -n "$version" ] || version="$(sed -n 's/^JAVA_RUNTIME_VERSION="\([^"-]*\).*"/\1/p' <<< "$release_info")"
+          echo "Windows JDK is $version"
+          mkdir -p AMS/out/linux-jdk-download
+          curl -fsSL -o AMS/out/linux-jdk-download/jdk-linux.tar.gz \
+            "https://api.adoptium.net/v3/binary/version/jdk-${version//+/%2B}/linux/x64/jdk/hotspot/normal/eclipse"
+
+      - name: Compile and run the automated checks
+        working-directory: AMS
+        run: |
+          set -euo pipefail
+          javac -d out/classes src/ams/*.java
+          java -cp out/classes -Dams.data="$RUNNER_TEMP/ams-smoke-test" packaging/tools/SmokeTest.java
+
+      - name: Build the downloads
+        run: |
+          set -euo pipefail
+          export JAVA_HOME="$(cygpath -u "$JAVA_HOME")"
+          VERSION="${TAG#v}" bash AMS/packaging/build-release.sh
+          for f in AMOffline-Windows.zip AMOffline-Linux-x64.tar.gz AMOffline-Linux.tar.gz AMOffline.jar; do
+            test -f "AMS/release/$f" || { echo "::error::AMS/release/$f was not built"; exit 1; }
+          done
+
+      - name: Attach the downloads to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" AMS/release/* --clobber

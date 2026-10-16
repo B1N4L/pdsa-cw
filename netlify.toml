@@ -1,0 +1,10 @@
+# Netlify settings for https://amoffline.netlify.app
+# The page is built from website/; the app downloads are on the latest GitHub release (website/_redirects).
+
+[build]
+  publish = "website"
+  command = "bash AMS/packaging/build-site.sh"
+  ignore = "bash AMS/packaging/netlify-skip-build.sh"
+
+[build.environment]
+  SITE_URL = "https://amoffline.netlify.app"
